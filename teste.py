@@ -1,3 +1,6 @@
+import unittest
+from unittest.mock import patch
+from io import StringIO
 import time
 from abc import ABC, abstractmethod
 from typing import List
@@ -36,12 +39,22 @@ class WarGame:
         for observer in self.observers:
             observer.update(winner, countries_won)
 
+class TestWarGame(unittest.TestCase):
+    def setUp(self):
+        self.game = WarGame()
+        self.player1 = Player("Alice")
+        self.player2 = Player("Bob")
+        self.game.add_observer(self.player1)
+        self.game.add_observer(self.player2)
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def assert_stdout(self, expected_output, mock_stdout):
+        self.game.notify_winner("Alice", ["Brasil", "Chile", "Peru"])
+        self.assertEqual(mock_stdout.getvalue(), expected_output)
+
+    def test_notify_winner(self):
+        expected_output = "Alice conquistou o país: Brasil\nAlice conquistou o país: Chile\nAlice conquistou o país: Peru\nBob perdeu a batalha para Alice.\nAlice venceu a batalha e conquistou os países: Brasil, Chile, Peru\nBob perdeu a batalha.\n"
+        self.assert_stdout(expected_output)
+
 if __name__ == "__main__":
-    game = WarGame()
-    player1 = Player("Alice")
-    player2 = Player("Bob")
-
-    game.add_observer(player1)
-    game.add_observer(player2)
-
-    game.notify_winner("Alice", ["Brasil", "Chile", "Peru"])
+    unittest.main()
