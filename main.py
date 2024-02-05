@@ -1,87 +1,22 @@
-from time import sleep
-import random
-
-class Subject:
+# Definindo a interface do sujeito
+class JogoDeGuerra:
     def __init__(self):
-        self.observers = []
+        self.jogadores = []
 
-    def add_subscriber(self, observer):
-        if observer not in self.observers:
-            self.observers.append(observer)
+    def anexar(self, jogador):
+        self.jogadores.append(jogador)
 
-    def remove_subscriber(self, observer):
-        self.observers.remove(observer)
+    def notificar(self, vencedor):
+        for jogador in self.jogadores:
+            jogador.atualizar(vencedor)
 
-    def notify_subscribers(self, message):
-        for observer in self.observers:
-            observer.update(message)
+# Definindo a classe do observador
+class Jogador:
+    def __init__(self, nome):
+        self.nome = nome
 
-
-class Player:
-    def __init__(self, name, subject):
-        self.name = name
-        self.subject = subject
-
-    def notify_subscribers(self):
-        self.subject.add_subscriber(self)
-
-    def update(self, message):
-        print(f"{self.name} received the message: {message}")
-
-    def ready(self):
-        print(f"{self.name} is ready for the game!")
-
-
-class WarGame(Subject):
-    def __init__(self, game_started, players):
-        super().__init__()
-        self.game_started = game_started
-        self.players = players
-
-    def start_game(self):
-        self.game_started = True
-        self.notify_subscribers("The game has started!")
-
-    def end_game(self, winner):
-        self.game_started = False
-        self.notify_subscribers(f"The game has ended! Player {winner.name} won!")
-
-
-if __name__ == '__main__':
-    # Game instance #
-    war_game = WarGame(False, [])
-
-    # Player instances #
-    player1 = Player('Player 1', war_game)
-    player2 = Player('Player 2', war_game)
-    player3 = Player('Player 3', war_game)
-
-    # Players notify the game that they are ready #
-    player1.notify_subscribers()
-    player2.notify_subscribers()
-    player3.notify_subscribers()
-
-    # Game notifies players that the game has started #
-    war_game.add_subscriber(player1)
-    war_game.add_subscriber(player2)
-    war_game.add_subscriber(player3)
-    war_game.start_game()
-
-    # Simulating game progress with a sleep
-    print('Game in progress...')
-    print('...')
-    sleep(3)
-
-    # Game notifies players that the game has ended #
-    winner = None
-    random_number = random.randint(1, 3)
-    print(f'Random number: {random_number}')
-
-    if random_number == 1:
-        winner = player1
-    elif random_number == 2:
-        winner = player2
-    else:
-        winner = player3
-
-    war_game.end_game(winner)
+    def atualizar(self, vencedor):
+        if self.nome == vencedor:
+            print(f'{self.nome} ganhou a batalha!')
+        else:
+            print(f'{self.nome} perdeu para {vencedor}.')
